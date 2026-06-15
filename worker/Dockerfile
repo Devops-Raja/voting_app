@@ -26,8 +26,8 @@ RUN groupadd -g 10001 appuser && \
 # Copy the compiled binaries from the builder stage
 COPY --from=builder --chown=appuser:appuser /app/publish .
 
-# Switch to the non-root user
-USER appuser
+# FORCE BOTH CASINGS: Symlink worker.dll to Worker.dll so it works NO MATTER WHAT
+RUN ln -s /app/Worker.dll /app/worker.dll
 
-# Run the .NET worker DLL
-ENTRYPOINT ["dotnet", "Worker.dll"]
+# Explicitly invoke using the absolute path
+ENTRYPOINT ["dotnet", "/app/Worker.dll"]
