@@ -30,4 +30,4 @@ COPY --from=builder --chown=appuser:appuser /app/publish .
 USER appuser
 
 # Run the .NET worker DLL
-ENTRYPOINT ["dotnet", "worker.dll"]
+ENTRYPOINT ["dotnet", "Worker.dll"]
