@@ -5,7 +5,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS builder
 WORKDIR /source
 
 # 1. Copy only the project file and restore dependencies (Optimizes Docker Caching)
-COPY worker.csproj .
+COPY Worker.csproj .
 RUN dotnet restore
 
 # 2. Copy the remaining source files (Program.cs, etc.) and build
