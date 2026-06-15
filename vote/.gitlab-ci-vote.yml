@@ -16,7 +16,7 @@ variables:
 test-vote:
   stage: test
   image: python:3.11-slim
-  allow_failure: true 
+  allow_failure: true
   before_script:
     - cd vote
     - pip install -r requirements.txt
