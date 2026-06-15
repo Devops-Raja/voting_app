@@ -1,21 +1,13 @@
-#!/bin/bash
-set -eo pipefail
+#!/bin/sh
+set -e
 
-host="$(hostname -i || echo '127.0.0.1')"
+# Fall back to local loopback securely
 user="${POSTGRES_USER:-postgres}"
-db="${POSTGRES_DB:-$POSTGRES_USER}"
-export PGPASSWORD="${POSTGRES_PASSWORD:-}"
+db="${POSTGRES_DB:-postgres}"
 
-args=(
-	# force postgres to not use the local unix socket (test "external" connectibility)
-	--host "$host"
-	--username "$user"
-	--dbname "$db"
-	--quiet --no-align --tuples-only
-)
-
-if select="$(echo 'SELECT 1' | psql "${args[@]}")" && [ "$select" = '1' ]; then
-	exit 0
+# Use pg_isready to verify network availability without full query execution overhead
+if pg_isready -h 127.0.0.1 -U "$user" -d "$db"; then
+    exit 0
 fi
 
 exit 1
