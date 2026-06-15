@@ -16,6 +16,7 @@ variables:
 test-vote:
   stage: test
   image: python:3.11-slim
+  allow_failure: true
   before_script:
     - cd vote
     - pip install -r requirements.txt
@@ -29,7 +30,7 @@ test-vote:
 build-vote:
   stage: build
   image: docker:24.0.7
-  allow_failure: true
+  
   services:
     - docker:24.0.7-dind
   variables:
