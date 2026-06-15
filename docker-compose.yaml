@@ -81,6 +81,17 @@ services:
     depends_on:
       db:
         condition: service_healthy
+# 6. Automated Vote Generator (Load Testing Tool)
+  seed:
+    build:
+      context: ./seed-data
+    container_name: voting-seed
+    environment:
+      - REDIS_HOST=redis
+    depends_on:
+      redis:
+        condition: service_healthy
 
+        
 volumes:
   db-data:
