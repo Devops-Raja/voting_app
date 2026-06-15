@@ -21,6 +21,7 @@ test-worker:
     DOTNET_CLI_TELEMETRY_OPTOUT: "1"
     DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
     MSBUILDDISABLENODEREUSE: "1"
+    DOTNET_GC_HEAP_HARD_LIMIT: "1C0000000"
   script:
     - cd worker
     - dotnet restore --verbosity normal
