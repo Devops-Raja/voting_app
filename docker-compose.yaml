@@ -17,12 +17,12 @@ services:
       retries: 3
 
   # 2. PostgreSQL Vault
-  postgres:
+  db:
     image: postgres:15-alpine
     container_name: voting-postgres
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: dummy_password
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
       # Mount both database storage and your healthcheck script directory
 
@@ -37,6 +37,10 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    networks:
+      default:
+        aliases:
+          - postgres      
 
   # 3. Python Flask Frontend
   vote:
