@@ -23,7 +23,7 @@ test-worker:
     MSBUILDDISABLENODEREUSE: "1"
   script:
     - cd worker
-    - dotnet restore
+    - dotnet restore --verbosity normal
     - dotnet build --no-restore --configuration Release
 
 # ==========================================
