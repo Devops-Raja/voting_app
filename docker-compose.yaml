@@ -68,7 +68,7 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      postgres:
+      db:
         condition: service_healthy
 
   # 5. Node.js Dashboard Frontend
@@ -83,7 +83,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=dummy_password
     depends_on:
-      postgres:
+      db:
         condition: service_healthy
 # 6. Automated Vote Generator (Load Testing Tool)
   seed:
