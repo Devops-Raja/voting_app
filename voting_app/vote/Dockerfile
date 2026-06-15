@@ -1,32 +1,52 @@
-# base defines a base stage that uses the official python runtime base image
-FROM python:3.11-slim AS base
+# ==========================================
+# STAGE 1: Builder (Compile & Install   )
+# ==========================================
+FROM python:3.11-slim AS builder
 
-# Add curl for healthcheck
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
-    rm -rf /var/lib/apt/lists/*
+# Prevent Python from writing .pyc files and enable unbuffered logging
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
-# Set the application directory
-WORKDIR /usr/local/app
+WORKDIR /app
 
-# Install our requirements.txt
-COPY requirements.txt ./requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+# Install system dependencies needed for compiling certain Python packages (e.g., gcc, psycopg2)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# dev defines a stage for development, where it'll watch for filesystem changes
-FROM base AS dev
-RUN pip install watchdog
-ENV FLASK_ENV=development
-CMD ["python", "app.py"]
+# Copy only the dependency files to leverage Docker caching
+COPY requirements.txt .
 
-# final defines the stage that will bundle the application for production
-FROM base AS final
+# Install dependencies into a specific local directory instead of global system site-packages
+RUN pip install --no-cache-dir --user -r requirements.txt
 
-# Copy our code from the current folder to the working directory inside the container
-COPY . .
 
-# Make port 80 available for links and/or publish
+# ==========================================
+# STAGE 2: Runner (Final Production Image)
+# ==========================================
+FROM python:3.11-slim AS runner
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PATH="/home/appuser/.local/bin:${PATH}"
+
+WORKDIR /app
+
+# Create a non-root user for security compliance
+RUN groupadd -g 10001 appuser && \
+    useradd -u 10001 -g appuser -m -s /bin/bash appuser
+
+# Copy the installed python packages from the builder stage
+COPY --from=builder --chown=appuser:appuser /root/.local /home/appuser/.local
+
+# Copy the application source code
+COPY --chown=appuser:appuser . .
+
+# Switch to the non-root user
+USER appuser
+
+# Expose the port your application listens on
 EXPOSE 80
 
-# Define our command to be run when launching the container
 CMD ["gunicorn", "app:app", "-b", "0.0.0.0:80", "--log-file", "-", "--access-logfile", "-", "--workers", "4", "--keep-alive", "0"]
