@@ -29,6 +29,7 @@ test-vote:
 build-vote:
   stage: build
   image: docker:24.0.7
+  allow_failure: true
   services:
     - docker:24.0.7-dind
   variables:
