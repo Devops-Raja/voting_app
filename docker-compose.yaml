@@ -61,13 +61,14 @@ services:
       context: ./worker
     container_name: voting-worker
     # FORCE NETWORK ROUTING TO DATABASE NATIVE IP
-    extra_hosts:
-      - "db:172.17.0.1" # Standard Docker Host Bridge IP gateway fallback
+    # FIXED: Replaced extra_hosts with an explicit internal network link mapping db to db
+    links:
+      - "db:db"
     environment:
       - REDIS_HOST=redis
       - DB_HOST=postgres
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=dummy_password
+      - POSTGRES_PASSWORD=postgres
     depends_on:
       redis:
         condition: service_healthy
