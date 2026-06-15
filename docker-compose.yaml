@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   # 1. Redis Queue
@@ -7,8 +6,12 @@ services:
     container_name: voting-redis
     ports:
       - "6379:6379"
+# Mount your local healthchecks directory inside the container
+    volumes:
+      - ./healthchecks:/usr/local/bin/healthchecks
+    # Execute your specific script path natively
     healthcheck:
-      test: ["CMD", "sh", "-c", "/app/healthchecks/redis.sh"] # Uses your custom script if mapped, or default ping
+      test: ["CMD", "sh", "/usr/local/bin/healthchecks/redis.sh"]
       interval: 5s
       timeout: 3s
       retries: 3
@@ -21,13 +24,16 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: dummy_password
       POSTGRES_DB: postgres
+      # Mount both database storage and your healthcheck script directory
+
     volumes:
       - db-data:/var/lib/postgresql/data
+      - ./healthchecks:/usr/local/bin/healthchecks
     ports:
       - "5432:5432"
-    # Runs the health check script you have in your directory
+    # Execute your specific script path natively
     healthcheck:
-      test: ["CMD", "bash", "/app/healthchecks/postgres.sh"]
+      test: ["CMD", "sh", "/usr/local/bin/healthchecks/postgres.sh"]
       interval: 5s
       timeout: 3s
       retries: 5
