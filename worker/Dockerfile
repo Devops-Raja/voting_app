@@ -26,8 +26,7 @@ RUN groupadd -g 10001 appuser && \
 # Copy the compiled binaries from the builder stage
 COPY --from=builder --chown=appuser:appuser /app/publish .
 
-# FORCE BOTH CASINGS: Symlink worker.dll to Worker.dll so it works NO MATTER WHAT
-RUN ln -s /app/Worker.dll /app/worker.dll
+
 
 # Explicitly invoke using the absolute path
-ENTRYPOINT ["dotnet", "/app/Worker.dll"]
+ENTRYPOINT ["dotnet", "Worker.dll"]
