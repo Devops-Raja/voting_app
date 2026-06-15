@@ -5,8 +5,10 @@ stages:
   - deploy
 
 variables:
-  IMAGE_TAG: $CI_REGISTRY_IMAGE/vote:$CI_COMMIT_SHORT_SHA
-  LATEST_TAG: $CI_REGISTRY_IMAGE/vote:latest
+  # Using your Docker Hub repository path instead of the GitLab registry
+  DOCKER_HUB_REPO: "ram7800/vote"
+  IMAGE_TAG: "$DOCKER_HUB_REPO:$CI_COMMIT_SHORT_SHA"
+  LATEST_TAG: "$DOCKER_HUB_REPO:latest"
 
 # ==========================================
 # 1. TEST STAGE
@@ -18,13 +20,11 @@ test-vote:
     - cd vote
     - pip install -r requirements.txt
   script:
-    # Run syntax/style checking (highly recommended for Python production code)
     - pip install flake8
     - flake8 --exclude=static,templates --max-line-length=120 .
-    # If you have unit tests configured later, you can add 'pytest' here
 
 # ==========================================
-# 2. BUILD STAGE (Docker-in-Docker with Caching)
+# 2. BUILD STAGE (Pushes to Docker Hub)
 # ==========================================
 build-vote:
   stage: build
@@ -35,26 +35,21 @@ build-vote:
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: "/certs"
   before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    # Authenticating to Docker Hub using secure variables
+    - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USER" --password-stdin
   script:
-    # Pull the last successful image to reuse cached layers and speed up the build
+    # Pull from Docker Hub to reuse cached layers
     - docker pull $LATEST_TAG || true
+    # Build using the Dockerfile inside your /vote folder
     - docker build 
         --cache-from $LATEST_TAG 
         --build-arg BUILDKIT_INLINE_CACHE=1 
         -t $IMAGE_TAG 
         -t $LATEST_TAG ./vote
+    # Push the immutable SHA tag and the latest tag to your repo
     - docker push $IMAGE_TAG
     - docker push $LATEST_TAG
 
 # ==========================================
 # 3. DEPLOY STAGE
 # ==========================================
-deploy-vote:
-  stage: deploy
-  image: alpine:latest
-  script:
-    - echo "Deploying Vote service version $IMAGE_TAG to production..."
-    # This acts as a placeholder. We will fill this out once your hosting platform is selected.
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
