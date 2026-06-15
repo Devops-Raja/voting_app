@@ -4,12 +4,11 @@ metadata:
   name: voting-ingress
   namespace: voting-app
   annotations:
-    # Use the AWS ALB Ingress Controller
     kubernetes.io/ingress.class: alb
-    # Set the load balancer to be internet-facing
     alb.ingress.kubernetes.io/scheme: internet-facing
-    # Use IP mode for faster, direct routing to pods
     alb.ingress.kubernetes.io/target-type: ip
+    # This ensures paths are handled correctly by the ALB
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
 spec:
   rules:
   - http:
