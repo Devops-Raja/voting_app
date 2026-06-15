@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # 1. Redis Queue
+  redis:
+    image: redis:7-alpine
+    container_name: voting-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "sh", "-c", "/app/healthchecks/redis.sh"] # Uses your custom script if mapped, or default ping
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  # 2. PostgreSQL Vault
+  db:
+    image: postgres:15-alpine
+    container_name: voting-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: dummy_password
+      POSTGRES_DB: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    # Runs the health check script you have in your directory
+    healthcheck:
+      test: ["CMD", "bash", "/app/healthchecks/postgres.sh"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # 3. Python Flask Frontend
+  vote:
+    build:
+      context: ./vote
+    container_name: voting-frontend
+    ports:
+      - "5000:80"
+    environment:
+      - REDIS_HOST=redis
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # 4. .NET Background Processing Worker
+  worker:
+    build:
+      context: ./worker
+    container_name: voting-worker
+    environment:
+      - REDIS_HOST=redis
+      - DB_HOST=db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=dummy_password
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+
+  # 5. Node.js Dashboard Frontend
+  result:
+    build:
+      context: ./result
+    container_name: voting-results
+    ports:
+      - "5001:80"
+    environment:
+      - DB_HOST=db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=dummy_password
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db-data:
