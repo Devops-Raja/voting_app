@@ -136,13 +136,18 @@ namespace Worker
             try
             {
                 command.CommandText = "INSERT INTO votes (id, vote) VALUES (@id, @vote)";
-                command.Parameters.AddWithValue("@id", voterId);
-                command.Parameters.AddWithValue("@vote", vote);
+// Explicitly map types to satisfy modern Npgsql engine optimization constraints
+                command.Parameters.Add("@id", NpgsqlTypes.NpgsqlDbType.Varchar).Value = voterId;
+                command.Parameters.Add("@vote", NpgsqlTypes.NpgsqlDbType.Varchar).Value = vote;
                 command.ExecuteNonQuery();
             }
             catch (DbException)
             {
+                // Re-initialize parameters for the fallback UPDATE statement
+                command.Parameters.Clear();
                 command.CommandText = "UPDATE votes SET vote = @vote WHERE id = @id";
+                command.Parameters.Add("@id", NpgsqlTypes.NpgsqlDbType.Varchar).Value = voterId;
+                command.Parameters.Add("@vote", NpgsqlTypes.NpgsqlDbType.Varchar).Value = vote;
                 command.ExecuteNonQuery();
             }
             finally
