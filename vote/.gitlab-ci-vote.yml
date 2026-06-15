@@ -2,7 +2,7 @@
 stages:
   - test
   - build
-  - deploy
+
 
 variables:
   # Using your Docker Hub repository path instead of the GitLab registry

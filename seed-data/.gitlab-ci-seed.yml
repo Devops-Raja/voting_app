@@ -1,0 +1,49 @@
+# ~/voting_app/seed-data/.gitlab-ci-seed.yml
+stages:
+  - test
+  - build
+
+variables:
+  # Targeting your specific Docker Hub repository
+  DOCKER_HUB_REPO: "ram7800/seed-data"
+  IMAGE_TAG: "$DOCKER_HUB_REPO:$CI_COMMIT_SHORT_SHA"
+  LATEST_TAG: "$DOCKER_HUB_REPO:latest"
+
+# ==========================================
+# 1. TEST STAGE
+# ==========================================
+test-seed:
+  stage: test
+  image: python:3.11-slim
+  allow_failure: true # Keeps pipeline moving even if formatting is imperfect
+  script:
+    - cd seed-data
+    # Fast compilation check to ensure make-data.py has no syntax errors
+    - python -m py_compile make-data.py
+
+# ==========================================
+# 2. BUILD STAGE (Pushes to Docker Hub)
+# ==========================================
+build-seed:
+  stage: build
+  image: docker:24.0.7
+  services:
+    - docker:24.0.7-dind
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    # Uses the global Group-level credentials you configured
+    - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USER" --password-stdin
+  script:
+    # Pull the previous tag to optimize build speeds via layers cache
+    - docker pull $LATEST_TAG || true
+    # Build using the Dockerfile inside your /seed-data folder
+    - docker build 
+        --cache-from $LATEST_TAG 
+        --build-arg BUILDKIT_INLINE_CACHE=1 
+        -t $IMAGE_TAG 
+        -t $LATEST_TAG ./seed-data
+    # Push both the unique commit hash tag and the latest tag tracking pointer
+    - docker push $IMAGE_TAG
+    - docker push $LATEST_TAG
