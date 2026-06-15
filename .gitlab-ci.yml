@@ -1,0 +1,30 @@
+stages:
+  - trigger
+
+# Trigger backend pipeline only if files in services/backend/ change
+backend-service:
+  stage: trigger
+  trigger:
+    include: templates/.microservice-ci.yml
+    forward:
+      pipeline_variables: true
+  variables:
+    SERVICE_NAME: "backend-service"
+    SERVICE_PATH: "services/backend"
+  rules:
+    - changes:
+        - services/backend/**/*
+
+# Trigger frontend pipeline only if files in services/frontend/ change
+frontend-service:
+  stage: trigger
+  trigger:
+    include: templates/.microservice-ci.yml
+    forward:
+      pipeline_variables: true
+  variables:
+    SERVICE_NAME: "frontend-service"
+    SERVICE_PATH: "services/frontend"
+  rules:
+    - changes:
+        - services/frontend/**/*
