@@ -27,7 +27,7 @@ services:
       # Mount both database storage and your healthcheck script directory
 
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
       - ./healthchecks:/usr/local/bin/healthchecks
     ports:
       - "5432:5432"
@@ -58,13 +58,13 @@ services:
     container_name: voting-worker
     environment:
       - REDIS_HOST=redis
-      - DB_HOST=db
+      - DB_HOST=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=dummy_password
     depends_on:
       redis:
         condition: service_healthy
-      db:
+      postgres:
         condition: service_healthy
 
   # 5. Node.js Dashboard Frontend
@@ -75,11 +75,11 @@ services:
     ports:
       - "5001:80"
     environment:
-      - DB_HOST=db
+      - DB_HOST=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=dummy_password
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
 # 6. Automated Vote Generator (Load Testing Tool)
   seed:
@@ -94,4 +94,4 @@ services:
 
 
 volumes:
-  db-data:
+  postgres-data:
