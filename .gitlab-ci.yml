@@ -1,30 +1,52 @@
 stages:
   - trigger
 
-# Trigger backend pipeline only if files in services/backend/ change
-backend-service:
+# ==========================================
+# 1. PYTHON VOTE FRONTEND TRIGGER
+# ==========================================
+trigger-vote:
   stage: trigger
   trigger:
-    include: templates/.microservice-ci.yml
-    forward:
-      pipeline_variables: true
-  variables:
-    SERVICE_NAME: "backend-service"
-    SERVICE_PATH: "services/backend"
+    include: vote/.gitlab-ci-vote.yml
+    strategy: depend
   rules:
     - changes:
-        - services/backend/**/*
+        - vote/**/*
 
-# Trigger frontend pipeline only if files in services/frontend/ change
-frontend-service:
+# ==========================================
+# 2. .NET WORKER BACKEND TRIGGER
+# ==========================================
+trigger-worker:
   stage: trigger
   trigger:
-    include: templates/.microservice-ci.yml
-    forward:
-      pipeline_variables: true
-  variables:
-    SERVICE_NAME: "frontend-service"
-    SERVICE_PATH: "services/frontend"
+    include: worker/.gitlab-ci-worker.yml
+    strategy: depend
   rules:
     - changes:
-        - services/frontend/**/*
+        - worker/**/*
+
+# ==========================================
+# 3. NODE.JS RESULT FRONTEND TRIGGER
+# ==========================================
+trigger-results:
+  stage: trigger
+  trigger:
+    include: result/.gitlab-ci-results.yml
+    strategy: depend
+  rules:
+    - changes:
+        - result/**/*
+
+# ==========================================
+# 4. PYTHON SEED DATA TRIGGER
+# ==========================================
+trigger-seed:
+  stage: trigger
+  trigger:
+    include: seed-data/.gitlab-ci-seed.yml
+    strategy: depend
+  rules:
+    - changes:
+        - seed-data/**/*
+
+# ==========================================
