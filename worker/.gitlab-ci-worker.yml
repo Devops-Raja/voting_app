@@ -43,11 +43,10 @@ build-worker:
   script:
     - docker pull $LATEST_TAG || true
     # Build using the Dockerfile inside your /worker folder
-    # 🛠️ Added --build-arg flags to control MSBuild inside the container build process
-    - docker build 
+    - docker build
+        --network host
         --cache-from $LATEST_TAG 
         --build-arg BUILDKIT_INLINE_CACHE=1 
-        --build-arg MSBUILDDISABLENODEREUSE=1
         -t $IMAGE_TAG 
         -t $LATEST_TAG ./worker
     - docker push $IMAGE_TAG
