@@ -30,7 +30,6 @@ test-vote:
 build-vote:
   stage: build
   image: docker:24.0.7
-  
   services:
     - docker:24.0.7-dind
   variables:

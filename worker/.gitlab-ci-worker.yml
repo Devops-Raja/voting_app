@@ -16,6 +16,11 @@ variables:
 test-worker:
   stage: test
   image: mcr.microsoft.com/dotnet/sdk:8.0
+  variables:
+    # Disable the persistent background build server daemon inside the container
+    DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+    DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
+    MSBUILDDISABLENODEREUSE: "1"
   script:
     - cd worker
     - dotnet restore

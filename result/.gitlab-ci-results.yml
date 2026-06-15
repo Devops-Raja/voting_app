@@ -3,7 +3,6 @@ stages:
   - test
   - build
 
-
 variables:
   # Targeting your specific Docker Hub repository
   DOCKER_HUB_REPO: "ram7800/result"
