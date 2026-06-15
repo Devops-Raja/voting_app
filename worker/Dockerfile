@@ -10,7 +10,7 @@ RUN dotnet restore
 
 # 2. Copy the remaining source files (Program.cs, etc.) and build
 COPY . .
-RUN dotnet publish worker.csproj -c Release -o /app/publish --no-restore
+RUN dotnet publish Worker.csproj -c Release -o /app/publish --no-restore
 
 
 # ==========================================
