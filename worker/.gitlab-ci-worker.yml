@@ -68,6 +68,10 @@ deploy-worker:
   script:
     - REPO_URL="https://oauth2:${GITLAB_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git"
     - git remote set-url origin $REPO_URL
+    - git fetch origin main
+  # 1. Reset your local state to match the remote exactly
+    - git checkout main
+    - git reset --hard origin/main
     
     # Use the block scalar | to avoid syntax errors
     - |
@@ -78,7 +82,7 @@ deploy-worker:
       if [ -n "$(git status --porcelain)" ]; then
         git add k8/backend/worker-deployment.yaml
         git commit -m "CI: update worker image to $IMAGE_TAG [skip ci]"
-        git push origin HEAD:$CI_COMMIT_REF_NAME
+        git push origin/main HEAD:$CI_COMMIT_REF_NAME
       else
         echo "No changes needed."
       fi
