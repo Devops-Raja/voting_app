@@ -77,11 +77,11 @@ deploy-vote:
     # 2. Use the block scalar | for safe multi-line execution
     - |
       # Replace the image tag
-      sed -i "s|image: ram7800/vote:.*|image: $IMAGE_TAG|g" k8\frontend\vote-deployment.yaml
+      sed -i "s|image: ram7800/vote:.*|image: $IMAGE_TAG|g" k8/frontend/vote-deployment.yaml
       
       # Check if changes exist
       if [ -n "$(git status --porcelain)" ]; then
-        git add k8/frontend\vote-deployment.yaml
+        git add k8/frontend/vote-deployment.yaml
         git commit -m "CI: update worker image to $IMAGE_TAG [skip ci]"
         # Push ONLY the main branch
         git push origin main
