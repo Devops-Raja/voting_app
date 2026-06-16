@@ -17,7 +17,7 @@ spec:
       - name: worker
         image: ram7800/worker:d88c7bd7
         env:
-        # Reference ConfigMap
+        # Reference ConfigMap 
         - name: REDIS_HOST
           valueFrom:
             configMapKeyRef:
