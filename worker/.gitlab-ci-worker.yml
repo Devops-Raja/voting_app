@@ -62,18 +62,12 @@ deploy-worker:
     - git config --global user.email "ci-bot@gitlab.com"
     - git config --global user.name "CI Bot"
   script:
-    # 1. Authenticate git
     - REPO_URL="https://oauth2:${GITLAB_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git"
     - git remote set-url origin $REPO_URL
-    
-    # 2. Update the image tag in the worker deployment file
     - 'sed -i "s|image: ram7800/worker:.*|image: $IMAGE_TAG|g" k8/backend/worker-deployment.yaml'
-    # 3. Commit and push
     - git add k8/backend/worker-deployment.yaml
-    - git commit -m "CI: update worker image to $IMAGE_TAG [skip ci]"
+    - git commit -m "CI: update worker image [skip ci]"
     - git push origin HEAD:$CI_COMMIT_REF_NAME
-    
-    # 4. Apply to Cluster
     - apk add --no-cache kubectl
     - kubectl apply -f k8/backend/worker-deployment.yaml
   rules:
