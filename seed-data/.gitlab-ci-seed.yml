@@ -58,24 +58,24 @@ deploy-seed:
     - apk add --no-cache git sed
     - git config --global user.email "ci-bot@gitlab.com"
     - git config --global user.name "CI Bot"
-  script:
+script:
     - |
       REPO_URL="https://oauth2:${GITLAB_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git"
       git remote set-url origin $REPO_URL
       
-      # 1. Fetch latest and force reset local state to match remote
+      # 1. Fetch latest and reset
       git fetch origin
       git checkout main
       git reset --hard origin/main
       
-      # 2. Apply your change
+      # 2. Apply change
       sed -i "s|image: ram7800/seed-data:.*|image: $IMAGE_TAG|g" k8/seed-data/seed-job.yaml
       
-      # 3. Commit
+      # 3. Commit only if changes exist
       git add k8/seed-data/seed-job.yaml
-      git commit -m "CI: update image to $IMAGE_TAG [skip ci]"
+      git commit -m "CI: update image to $IMAGE_TAG [skip ci]" || echo "No changes to commit, skipping..."
       
-      # 4. Push with force
-      git push origin main --force
-  rules:
+      # 4. Push only if there is something to push
+      git push origin main --force || echo "Nothing to push."
+rules:
     - if: $CI_COMMIT_BRANCH == "main"
