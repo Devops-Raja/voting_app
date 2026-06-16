@@ -15,7 +15,7 @@ spec:
     spec:
      containers:
       - name: vote
-        image: ram7800/vote:${IMAGE_TAG}
+        image: ram7800/vote:6aa44a11
         ports:
         - containerPort: 80
         env:
