@@ -9,7 +9,7 @@ spec:
     spec:
       containers:
         - name: seed-data
-          image: ram7800/seed-data:${IMAGE_TAG}
+          image: ram7800/seed-data:84a13432
           imagePullPolicy: Always
           env:
             # Load from ConfigMap
