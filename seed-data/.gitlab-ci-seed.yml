@@ -45,7 +45,7 @@ build-seed:
         --build-arg BUILDKIT_INLINE_CACHE=1 
         -t $IMAGE_TAG 
         -t $LATEST_TAG ./seed-data
-    # Push both the unique commit hash tag and the latest tag tracking pointer
+    # Push both the unique commit mhash tag and the latest tag tracking pointer
     - docker push $IMAGE_TAG
     - docker push $LATEST_TAG
 
