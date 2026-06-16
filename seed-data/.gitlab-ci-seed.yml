@@ -59,22 +59,25 @@ deploy-seed:
     - apk add --no-cache git sed
     - git config --global user.email "ci-bot@gitlab.com"
     - git config --global user.name "CI Bot"
-  script:
+script:
     - |
+      # 1. Setup credentials
       REPO_URL="https://oauth2:${GITLAB_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git"
       git remote set-url origin $REPO_URL
-      # Update the image tag in your job manifest
-      sed -i "s|image: ram7800/seed-data:.*|image: $IMAGE_TAG|g" k8/seed-data/seed-job.yaml
       
-      # Commit the update
+      # 2. Fix the detached state: Create a local main branch tracking the remote
+      git checkout -B main
+      git branch -u origin/main
+      
+      # 3. Pull latest changes
+      git pull origin main --rebase
+      
+      # 4. Apply your changes
+      sed -i "s|image: ram7800/seed-data:.*|image: $IMAGE_TAG|g" k8/seed-data/seed-job.yaml
       git add k8/seed-data/seed-job.yaml
       git commit -m "CI: update seed-data job image to $IMAGE_TAG [skip ci]"
-      git push origin HEAD:$CI_COMMIT_REF_NAME
       
-      # Deploy the updated Job to Kubernetes
-      apk add --no-cache kubectl
-      # Delete existing job first so Kubernetes runs the fresh one
-      kubectl delete job seed-data-job --ignore-not-found=true
-      kubectl apply -f k8/seed-data/seed-job.yaml
+      # 5. Push
+      git push origin main
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
