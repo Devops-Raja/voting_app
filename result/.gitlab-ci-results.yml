@@ -64,7 +64,7 @@ deploy-result:
     # 2. Use the block scalar | for safe multi-line execution
     - |
       # Replace the image tag
-      sed -i "s|image: ram7800/worker:.*|image: $IMAGE_TAG|g" k8/frontend/results-deployment.yaml
+      sed -i "s|image: ram7800/result:.*|image: $IMAGE_TAG|g" k8/frontend/results-deployment.yaml
       
       # Check if changes exist
       if [ -n "$(git status --porcelain)" ]; then
@@ -78,3 +78,6 @@ deploy-result:
       fi
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
+
+
+    
