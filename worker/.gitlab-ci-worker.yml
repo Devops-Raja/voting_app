@@ -60,7 +60,7 @@ build-worker:
 deploy-worker:
   stage: deploy
   image: alpine:latest
-  needs: ["build-worker"] # Ensures the build artifact is available
+  needs: ["build-worker"] # Ensures the  build artifact is available
   before_script:
     - apk add --no-cache git sed
     - git config --global user.email "ci-bot@gitlab.com"
