@@ -57,7 +57,7 @@ build-vote:
       dotenv: build.env
 # ==========================================
 # 3. DEPLOY STAGE
-# ==========================================
+# ===========================================
 deploy-vote:
   stage: deploy
   image: alpine:latest
