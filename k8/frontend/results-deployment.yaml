@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: result
-        image: ram7800/result:${IMAGE_TAG}
+        image: ram7800/result:b491b612
         ports:
         - containerPort: 80
         env:
