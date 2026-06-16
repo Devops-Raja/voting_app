@@ -1,0 +1,12 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seed-data-job
+spec:
+  template:
+    spec:
+      containers:
+        - name: seed-data
+          image: ram7800/seed-data:latest
+          imagePullPolicy: Always
+      restartPolicy: OnFailure
