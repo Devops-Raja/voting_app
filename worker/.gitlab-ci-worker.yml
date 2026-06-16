@@ -56,7 +56,7 @@ build-worker:
   artifacts:
     reports:
       dotenv: build.env
-# ==========================================
+# ===========================================
 deploy-worker:
   stage: deploy
   image: alpine:latest
