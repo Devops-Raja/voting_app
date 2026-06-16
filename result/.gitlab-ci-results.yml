@@ -28,11 +28,7 @@ build-result:
     - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USER" --password-stdin
   script:
     - docker pull $LATEST_TAG || true
-    - docker build 
-        --cache-from $LATEST_TAG 
-        --build-arg BUILDKIT_INLINE_CACHE=1 
-        -t $IMAGE_TAG 
-        -t $LATEST_TAG ./result
+    - docker build --cache-from $LATEST_TAG --build-arg BUILDKIT_INLINE_CACHE=1 -t $IMAGE_TAG -t $LATEST_TAG ./result
     - docker push $IMAGE_TAG
     - docker push $LATEST_TAG
 
