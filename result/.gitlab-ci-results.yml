@@ -8,6 +8,7 @@ variables:
   IMAGE_TAG: "$DOCKER_HUB_REPO:$CI_COMMIT_SHORT_SHA"
   LATEST_TAG: "$DOCKER_HUB_REPO:latest"
 
+# 1. TEST: Validates code and installs dependencies
 lint-result:
   stage: test
   image: node:20-alpine
@@ -16,6 +17,7 @@ lint-result:
     - cd result
     - npm ci --prefer-offline
 
+# 2. BUILD: Creates the Docker image and pushes it to Docker Hub
 build-result:
   stage: build
   image: docker:24.0.7
@@ -28,10 +30,16 @@ build-result:
     - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USER" --password-stdin
   script:
     - docker pull $LATEST_TAG || true
-    - docker build --cache-from $LATEST_TAG --build-arg BUILDKIT_INLINE_CACHE=1 -t $IMAGE_TAG -t $LATEST_TAG ./result
+    - |
+      docker build \
+        --cache-from $LATEST_TAG \
+        --build-arg BUILDKIT_INLINE_CACHE=1 \
+        -t $IMAGE_TAG \
+        -t $LATEST_TAG ./result
     - docker push $IMAGE_TAG
     - docker push $LATEST_TAG
 
+# 3. DEPLOY: Updates the K8s manifest and pushes the change back to the repo
 deploy-manifest:
   stage: deploy
   image: alpine:latest
@@ -40,13 +48,16 @@ deploy-manifest:
     - git config --global user.email "ci-bot@gitlab.com"
     - git config --global user.name "CI Bot"
   script:
-    - REPO_URL="https://oauth2:${GITLAB_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git"
-    - git remote set-url origin $REPO_URL
-    - sed -i "s|image: ram7800/result:.*|image: $IMAGE_TAG|g" k8/frontend/result-deployment.yml
-    - git add k8/frontend/result-deployment.yml
-    - git commit -m "CI: update result image to $IMAGE_TAG [skip ci]"
-    - git push origin HEAD:$CI_COMMIT_REF_NAME
-    - apk add --no-cache kubectl
-    - kubectl apply -f k8/frontend/result-deployment.yml
+    # Use the pipe | to handle complex multi-line shell commands safely
+    - |
+      REPO_URL="https://oauth2:${GITLAB_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git"
+      git remote set-url origin $REPO_URL
+      # Update the deployment file with the new image tag
+      sed -i "s|image: ram7800/result:.*|image: $IMAGE_TAG|g" k8/frontend/result-deployment.yml
+      # Commit the file change back to the repository
+      git add k8/frontend/result-deployment.yml
+      git commit -m "CI: update result image to $IMAGE_TAG [skip ci]"
+      git push origin HEAD:$CI_COMMIT_REF_NAME
+
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
