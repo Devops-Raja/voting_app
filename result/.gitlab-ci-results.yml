@@ -57,20 +57,13 @@ deploy-manifest:
     - git config --global user.email "ci-bot@gitlab.com"
     - git config --global user.name "CI Bot"
   script:
-    # 1. Setup Remote
     - REPO_URL="https://oauth2:${GITLAB_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git"
     - git remote set-url origin $REPO_URL
-    
-    # 2. Update the image tag (Standardized as a single-line command)
-    - if [ ! -f "k8/frontend/result-deployment.yml" ]; then echo "Manifest not found!" && exit 1; fi
     - sed -i "s|image: ram7800/result:.*|image: $IMAGE_TAG|g" k8/frontend/result-deployment.yml
-    
-    # 3. Commit and push (Standardized as a single-line command)
     - git add k8/frontend/result-deployment.yml
-    - git diff --quiet && echo "No changes to commit" || (git commit -m "CI: update result image to $IMAGE_TAG [skip ci]" && git push origin HEAD:$CI_COMMIT_REF_NAME)
-    
-    # 4. Apply to EKS
+    - git commit -m "CI: update result image to $IMAGE_TAG [skip ci]"
+    - git push origin HEAD:$CI_COMMIT_REF_NAME
     - apk add --no-cache kubectl
     - kubectl apply -f k8/frontend/result-deployment.yml
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: $CI_COMMIT_BRANCH == "main"
