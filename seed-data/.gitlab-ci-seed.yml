@@ -66,19 +66,25 @@ deploy-seed:
   script:
     - REPO_URL="https://oauth2:${GITLAB_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git"
     - git remote set-url origin $REPO_URL
+    - git fetch origin main
     
-    # Use the block scalar | to avoid syntax errors
+    # 1. Force your local main to be an exact copy of the remote main
+    - git checkout -B main origin/main
+    
+    # 2. Use the block scalar | for safe multi-line execution
     - |
-      # Replace the image tag in your manifest
-      sed -i "s|image: ram7800/seed-data:.*|image: $IMAGE_TAG|g" k8/seed-data/seed-job.yaml
+      # Replace the image tag
+      sed -i "s|image: ram7800/worker:.*|image: $IMAGE_TAG|g" k8/seed-data/seed-job.yaml
       
-      # Check if changes exist before pushing
+      # Check if changes exist
       if [ -n "$(git status --porcelain)" ]; then
         git add k8/seed-data/seed-job.yaml
         git commit -m "CI: update worker image to $IMAGE_TAG [skip ci]"
-        git push origin HEAD:$CI_COMMIT_REF_NAME
+        # Push ONLY the main branch
+        git push origin main
+        echo "Successfully updated GitLab manifest."
       else
-        echo "No changes needed."
+        echo "No changes needed, manifest is already up to date."
       fi
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
