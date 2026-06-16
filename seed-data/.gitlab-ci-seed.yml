@@ -51,7 +51,6 @@ build-seed:
 
 # ==========================================
 # 3. DEPLOY STAGE
-# ==========================================
 deploy-seed:
   stage: deploy
   image: alpine:latest
@@ -59,25 +58,24 @@ deploy-seed:
     - apk add --no-cache git sed
     - git config --global user.email "ci-bot@gitlab.com"
     - git config --global user.name "CI Bot"
-script:
+  script:
     - |
-      # 1. Setup credentials
       REPO_URL="https://oauth2:${GITLAB_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git"
       git remote set-url origin $REPO_URL
       
-      # 2. Fix the detached state: Create a local main branch tracking the remote
-      git checkout -B main
-      git branch -u origin/main
+      # 1. Fetch latest and force reset local state to match remote
+      git fetch origin
+      git checkout main
+      git reset --hard origin/main
       
-      # 3. Pull latest changes
-      git pull origin main --rebase
-      
-      # 4. Apply your changes
+      # 2. Apply your change
       sed -i "s|image: ram7800/seed-data:.*|image: $IMAGE_TAG|g" k8/seed-data/seed-job.yaml
-      git add k8/seed-data/seed-job.yaml
-      git commit -m "CI: update seed-data job image to $IMAGE_TAG [skip ci]"
       
-      # 5. Push
-      git push origin main
+      # 3. Commit
+      git add k8/seed-data/seed-job.yaml
+      git commit -m "CI: update image to $IMAGE_TAG [skip ci]"
+      
+      # 4. Push with force
+      git push origin main --force
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
