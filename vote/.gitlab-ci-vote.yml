@@ -71,8 +71,5 @@ deploy-vote:
       git add k8/frontend/vote-deployment.yaml
       git commit -m "CI: update vote image to $IMAGE_TAG [skip ci]"
       git push origin HEAD:$CI_COMMIT_REF_NAME
-      # Deploy to Kubernetes
-      apk add --no-cache kubectl
-      kubectl apply -f k8/frontend/vote-deployment.yaml
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
