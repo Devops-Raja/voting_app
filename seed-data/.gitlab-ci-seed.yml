@@ -69,7 +69,7 @@ deploy-worker:
     # Use the block scalar | to avoid syntax errors
     - |
       # Replace the image tag in your manifest
-      sed -i "s|image: ram7800/worker:.*|image: $IMAGE_TAG|g" k8/seed-data/seed-job.yaml
+      sed -i "s|image: ram7800/seed-data:.*|image: $IMAGE_TAG|g" k8/seed-data/seed-job.yaml
       
       # Check if changes exist before pushing
       if [ -n "$(git status --porcelain)" ]; then
