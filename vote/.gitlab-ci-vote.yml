@@ -50,7 +50,28 @@ build-vote:
     # Push the immutable SHA tag and the latest tag to your repo
     - docker push $IMAGE_TAG
     - docker push $LATEST_TAG
-
 # ==========================================
 # 3. DEPLOY STAGE
-# ============================+==============
+# ==========================================
+deploy-vote:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache git sed
+    - git config --global user.email "ci-bot@gitlab.com"
+    - git config --global user.name "CI Bot"
+  script:
+    - |
+      REPO_URL="https://oauth2:${GITLAB_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git"
+      git remote set-url origin $REPO_URL
+      # Update the image in the vote deployment file
+      sed -i "s|image: ram7800/vote:.*|image: $IMAGE_TAG|g" k8/frontend/vote-deployment.yaml
+      # Commit the change
+      git add k8/frontend/vote-deployment.yaml
+      git commit -m "CI: update vote image to $IMAGE_TAG [skip ci]"
+      git push origin HEAD:$CI_COMMIT_REF_NAME
+      # Deploy to Kubernetes
+      apk add --no-cache kubectl
+      kubectl apply -f k8/frontend/vote-deployment.yaml
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
