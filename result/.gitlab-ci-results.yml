@@ -2,6 +2,7 @@
 stages:
   - test
   - build
+  - deploy
 
 variables:
   # Targeting your specific Docker Hub repository
@@ -45,6 +46,7 @@ build-result:
         -t $LATEST_TAG ./result
     - docker push $IMAGE_TAG
     - docker push $LATEST_TAG
+
 
 
 

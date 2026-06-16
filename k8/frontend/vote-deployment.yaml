@@ -13,7 +13,7 @@ spec:
       labels:
         app: vote
     spec:
-      containers:
+     containers:
       - name: vote
         image: ram7800/vote:${IMAGE_TAG}
         ports:
@@ -24,6 +24,13 @@ spec:
             configMapKeyRef:
               name: app-config
               key: REDIS_HOST
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "250m"
+            memory: "256Mi"
 ---
 apiVersion: v1
 kind: Service
