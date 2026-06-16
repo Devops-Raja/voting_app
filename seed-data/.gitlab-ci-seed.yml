@@ -52,7 +52,7 @@ build-seed:
   artifacts:
     reports:
       dotenv: build.env
-# ==========================================
+# ===========================================
 # 3. DEPLOY STAGE
 deploy-seed:
   stage: deploy
