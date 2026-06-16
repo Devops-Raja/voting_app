@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: worker
-        image: ram7800/worker:${IMAGE_TAG}
+        image: ram7800/worker:a7209301
         env:
         # Reference ConfigMap
         - name: REDIS_HOST
