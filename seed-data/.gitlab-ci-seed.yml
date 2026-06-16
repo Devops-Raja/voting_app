@@ -54,27 +54,30 @@ build-seed:
       dotenv: build.env
 # ==========================================
 # 3. DEPLOY STAGE
-ddeploy-worker:
+deploy-worker:
   stage: deploy
   image: alpine:latest
+  needs: ["build-seed"] # Ensures the build artifact is available
   before_script:
     - apk add --no-cache git sed
     - git config --global user.email "ci-bot@gitlab.com"
     - git config --global user.name "CI Bot"
+  script:
     - REPO_URL="https://oauth2:${GITLAB_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git"
     - git remote set-url origin $REPO_URL
-  script:
-    # 1. Perform the replacement
-    - 'sed -i "s@image: ram7800/worker:.*@image: $IMAGE_TAG@g" k8/seed-data/seed-job.yaml'
-    # 2. Use a simple shell block to run the conditional logic
+    
+    # Use the block scalar | to avoid syntax errors
     - |
+      # Replace the image tag in your manifest
+      sed -i "s|image: ram7800/worker:.*|image: $IMAGE_TAG|g" k8/seed-data/seed-job.yaml
+      
+      # Check if changes exist before pushing
       if [ -n "$(git status --porcelain)" ]; then
-        git add k8/backend/worker-deployment.yaml
-        git commit -m "CI: update worker image [skip ci]"
+        git add k8/seed-data/seed-job.yaml
+        git commit -m "CI: update worker image to $IMAGE_TAG [skip ci]"
         git push origin HEAD:$CI_COMMIT_REF_NAME
-        echo "Changes pushed."
       else
-        echo "No changes detected."
+        echo "No changes needed."
       fi
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
