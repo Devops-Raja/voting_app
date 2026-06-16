@@ -1,30 +1,21 @@
-# ~/voting_app/result/.gitlab-ci-results.yml
 stages:
   - test
   - build
   - deploy
 
 variables:
-  # Targeting your specific Docker Hub repository
   DOCKER_HUB_REPO: "ram7800/result"
   IMAGE_TAG: "$DOCKER_HUB_REPO:$CI_COMMIT_SHORT_SHA"
   LATEST_TAG: "$DOCKER_HUB_REPO:latest"
 
-# ==========================================
-# 1. TEST / LINT STAGE
-# ==========================================
 lint-result:
   stage: test
   image: node:20-alpine
-  allow_failure: true # Keeps pipeline moving even if formatting is imperfect
+  allow_failure: true
   script:
     - cd result
-    # Installs the exact versions locked in your package-lock.json
     - npm ci --prefer-offline
 
-# ==========================================
-# 2. BUILD STAGE (Pushes to Docker Hub)
-# ==========================================
 build-result:
   stage: build
   image: docker:24.0.7
@@ -34,11 +25,9 @@ build-result:
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: "/certs"
   before_script:
-    # Uses the global Group-level credentials you configured
     - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USER" --password-stdin
   script:
     - docker pull $LATEST_TAG || true
-    # Build using the Dockerfile inside your /result folder
     - docker build 
         --cache-from $LATEST_TAG 
         --build-arg BUILDKIT_INLINE_CACHE=1 
@@ -46,9 +35,7 @@ build-result:
         -t $LATEST_TAG ./result
     - docker push $IMAGE_TAG
     - docker push $LATEST_TAG
-# ==========================================
-# 3. DEPLOY STAGE
-# ==========================================
+
 deploy-manifest:
   stage: deploy
   image: alpine:latest
