@@ -58,7 +58,7 @@ deploy-manifest:
     - git config --global user.email "ci-bot@gitlab.com"
     - git config --global user.name "CI Bot"
     # Authenticate to the GitLab repo to allow pushing the update
-    - git remote set-url origin https://oauth2:${GITLAB_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git
+    - "git remote set-url origin https://oauth2:${GITLAB_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git"
   script:
     # 1. Update the image tag in the specific manifest file
     - sed -i "s|image: ram7800/result:.*|image: $IMAGE_TAG|g" k8/frontend/result-deployment.yml
