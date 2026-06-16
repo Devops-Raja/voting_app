@@ -48,7 +48,10 @@ build-seed:
     # Push both the unique commit mhash tag and the latest tag tracking pointer
     - docker push $IMAGE_TAG
     - docker push $LATEST_TAG
-
+    - echo "IMAGE_TAG=$IMAGE_TAG" > build.env
+  artifacts:
+    reports:
+      dotenv: build.env
 # ==========================================
 # 3. DEPLOY STAGE
 ddeploy-worker:

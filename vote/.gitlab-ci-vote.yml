@@ -51,6 +51,10 @@ build-vote:
     # Push the immutable SHA tag and the latest tag to your repo
     - docker push $IMAGE_TAG
     - docker push $LATEST_TAG
+    - echo "IMAGE_TAG=$IMAGE_TAG" > build.env
+  artifacts:
+    reports:
+      dotenv: build.env
 # ==========================================
 # 3. DEPLOY STAGE
 # ==========================================

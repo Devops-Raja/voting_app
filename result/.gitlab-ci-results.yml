@@ -38,7 +38,10 @@ build-result:
         -t $LATEST_TAG ./result
     - docker push $IMAGE_TAG
     - docker push $LATEST_TAG
-
+    - echo "IMAGE_TAG=$IMAGE_TAG" > build.env
+  artifacts:
+    reports:
+      dotenv: build.env
 # 3. DEPLOY: Updates the K8s manifest and pushes the change back to the repo
 deploy-manifest:
   stage: deploy
