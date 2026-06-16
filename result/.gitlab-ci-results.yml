@@ -57,20 +57,20 @@ deploy-manifest:
     - git config --global user.email "ci-bot@gitlab.com"
     - git config --global user.name "CI Bot"
   script:
-    # Use a variable to construct the remote URL to bypass colon parsing issues
+    # 1. Setup Remote
     - REPO_URL="https://oauth2:${GITLAB_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git"
     - git remote set-url origin $REPO_URL
     
-    # 1. Update the image tag
-    - sed -i "s|image: ram7800/result:.*|image: $IMAGE_TAG|g" k8/frontend/result-deployment.yml
+    # 2. Update the image tag - added a check to ensure file exists
+    - |
+      if [ -f "k8/frontend/result-deployment.yml" ]; then
+        sed -i "s|image: ram7800/result:.*|image: $IMAGE_TAG|g" k8/frontend/result-deployment.yml
+      else
+        echo "Manifest file not found!" && exit 1
+      fi
     
-    # 2. Commit and push
+    # 3. Only commit if there are actual changes
     - git add k8/frontend/result-deployment.yml
-    - git commit -m "CI: update result image to $IMAGE_TAG [skip ci]"
-    - git push origin HEAD:$CI_COMMIT_REF_NAME
-    
-    # 3. Apply changes
-    - apk add --no-cache kubectl
-    - kubectl apply -f k8/frontend/result-deployment.yml
+    - git diff --quiet && echo "No changes to commit" || (git commit -m "CI: update result image to $IMAGE_TAG [skip ci]" && git push origin HEAD:$CI_COMMIT_REF_NAME)
   only:
     - main
