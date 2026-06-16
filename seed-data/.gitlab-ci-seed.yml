@@ -54,7 +54,7 @@ build-seed:
       dotenv: build.env
 # ==========================================
 # 3. DEPLOY STAGE
-deploy-worker:
+deploy-seed:
   stage: deploy
   image: alpine:latest
   needs: ["build-seed"] # Ensures the build artifact is available

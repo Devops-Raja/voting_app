@@ -58,7 +58,7 @@ build-vote:
 # ==========================================
 # 3. DEPLOY STAGE
 # ==========================================
-deploy-worker:
+deploy-vote:
   stage: deploy
   image: alpine:latest
   needs: ["build-vote"] # Ensures the build artifact is available
@@ -73,7 +73,7 @@ deploy-worker:
     # Use the block scalar | to avoid syntax errors
     - |
       # Replace the image tag in your manifest
-      sed -i "s|image: ram7800/worker:.*|image: $IMAGE_TAG|g" k8/frontend/vote-deployment.yaml
+      sed -i "s|image: ram7800/vote:.*|image: $IMAGE_TAG|g" k8/frontend/vote-deployment.yaml
       
       # Check if changes exist before pushing
       if [ -n "$(git status --porcelain)" ]; then
