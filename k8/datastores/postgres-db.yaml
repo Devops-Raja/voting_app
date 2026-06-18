@@ -35,6 +35,12 @@ spec:
         ports:
         - containerPort: 5432
           name: postgres
+
+        tolerations:
+         - key: "CriticalAddonsOnly"
+           operator: "Exists"
+           effect: "NoSchedule"
+
         resources:
           requests:
             cpu: "100m"
