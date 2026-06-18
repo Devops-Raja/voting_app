@@ -21,12 +21,13 @@ aws iam create-policy \
 
 #This command will output an ARN like arn:aws:iam::472514435602:policy/AWSLoadBalancerControllerIAMPolicy. Copy that ARN. You will need it for the next step.
 Bash
-eksctl create iamserviceaccount \
+
+  eksctl create iamserviceaccount \
   --cluster=<your-cluster-name> \
   --namespace=kube-system \
   --name=aws-load-balancer-controller \
   --role-name AmazonEKSLoadBalancerControllerRole \
-  --attach-policy-arn=arn:aws:iam::<your-account-id>:policy/AWSLoadBalancerControllerIAMPolicy \
+  --attach-policy-arn=arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):policy/AWSLoadBalancerControllerIAMPolicy \
   --approve
 
 --------------------------------------------------------------------------------------------------
@@ -35,9 +36,9 @@ EBS DRIVER SA & Setup:
 eksctl create addon \
   --name aws-ebs-csi-driver \
   --cluster <your-cluster-name> \
-  --service-account-role-arn arn:aws:iam::<YOUR_ACCOUNT_ID>:role/AmazonEKS_EBS_CSI_DriverRole \
+  --service-account-role-arn arn:aws:iam:::$(aws sts get-caller-identity --query Account --output text):role/AmazonEKS_EBS_CSI_DriverRole \
   --force
-  
+
 Kubernetes needs a storage class to automatically provision the disk (EBS) for your database.
    eksctl create iamserviceaccount \
   --name ebs-csi-controller-sa \
@@ -48,8 +49,6 @@ Kubernetes needs a storage class to automatically provision the disk (EBS) for y
   --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
   --approve
 
-eksctl create addon --name aws-ebs-csi-driver --cluster <YOUR_CLUSTER_NAME> \
-  --service-account-role-arn arn:aws:iam::<YOUR_ACCOUNT_ID>:role/AmazonEKS_EBS_CSI_DriverRole --force
   --------------------------------------------------------------------
 
  Install the Controller: The easiest way is using Helm:
