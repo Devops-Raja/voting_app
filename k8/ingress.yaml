@@ -8,7 +8,9 @@ metadata:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     # This ensures paths are handled correctly by the ALB
-   
+    alb.ingress.kubernetes.io/actions.result-rewrite: >
+      {"type":"forward","forwardConfig":{"targetGroups":[{"serviceName":"result-service","servicePort":80}]},"rewriteConfig":{"path":"/"}}
+
 spec:
   ingressClassName: alb  #
   rules:
@@ -16,7 +18,7 @@ spec:
     http:
       paths:
             # Route /results path to the results dashboard
-      - path: /results
+      - path: /
         pathType: Prefix
         backend:
           service:
