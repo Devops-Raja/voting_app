@@ -13,7 +13,7 @@ spec:
       labels:
         app: db
     spec:
-      tolerations:
+      tolerations:  #this is added because the eks auto cluster nodes have taint conditions
          - key: "CriticalAddonsOnly"
            operator: "Exists"
            effect: "NoSchedule"

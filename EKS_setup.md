@@ -33,15 +33,11 @@ Bash
 --------------------------------------------------------------------------------------------------
 EBS DRIVER SA & Setup:
 
-eksctl create addon \
-  --name aws-ebs-csi-driver \
-  --cluster <your-cluster-name> \
-  --service-account-role-arn arn:aws:iam:::$(aws sts get-caller-identity --query Account --output text):role/AmazonEKS_EBS_CSI_DriverRole \
-  --force
 
-  eksctl create addon --name aws-ebs-csi-driver --cluster voting-app --force
 
-Kubernetes needs a storage class to automatically provision the disk (EBS) for your database.
+eksctl create addon --name aws-ebs-csi-driver --cluster voting-app --force
+
+
    eksctl create iamserviceaccount \
   --name ebs-csi-controller-sa \
   --namespace kube-system \

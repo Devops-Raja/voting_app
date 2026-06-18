@@ -10,7 +10,8 @@ metadata:
     # This ensures paths are handled correctly by the ALB
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
     # This rewrites the incoming path to /
-    alb.ingress.kubernetes.io/rewrite-target: /
+    alb.ingress.kubernetes.io/actions.result-rewrite: >
+      {"type":"rewrite","rewriteConfig":{"path":"/"}}
 spec:
   ingressClassName: alb  #
   rules:
@@ -22,9 +23,9 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: result-service
+            name: result-rewrite
             port:
-              number: 80
+              name: use-annotation
       # Route root path to the voting frontend
       - path: /
         pathType: Prefix
