@@ -61,3 +61,5 @@ helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
   --set serviceAccount.name=aws-load-balancer-controller
 
 -----------------------------------------------------------------------------------------
+note: genrally in EKS auto mode you dont need to create ALB controller
+Just defining a ingress class will help you to provision the LB
