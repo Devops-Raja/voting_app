@@ -8,6 +8,7 @@ metadata:
     alb.ingress.kubernetes.io/target-type: ip
     # This group name merges these rules with other Ingresses
     alb.ingress.kubernetes.io/group.name: "voting-app-shared"
+    alb.ingress.kubernetes.io/actions.result-rewrite: '{"type":"forward","forwardConfig":{"targetGroups":[{"serviceName":"result-service","servicePort":80}]},"rewriteConfig":{"path":"/"}}'
 spec:
   ingressClassName: alb
   rules:
