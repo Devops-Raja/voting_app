@@ -10,6 +10,7 @@ metadata:
     # This group name merges these rules with other Ingresses
     alb.ingress.kubernetes.io/group.name: "voting-app-shared"
 spec:
+  ingressClassName: alb
   rules:
   - host: voting-cat.com
     http:
