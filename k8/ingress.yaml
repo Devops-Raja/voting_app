@@ -9,23 +9,27 @@ metadata:
     alb.ingress.kubernetes.io/target-type: ip
     # This ensures paths are handled correctly by the ALB
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    # This rewrites the incoming path to /
+    alb.ingress.kubernetes.io/rewrite-target: /
 spec:
+  ingressClassName: alb  #
   rules:
-  - http:
+  - host: voting-cat.com
+    http:
       paths:
+            # Route /results path to the results dashboard
+      - path: /results
+        pathType: Prefix
+        backend:
+          service:
+            name: result-service
+            port:
+              number: 80
       # Route root path to the voting frontend
       - path: /
         pathType: Prefix
         backend:
           service:
             name: vote-service
-            port:
-              number: 80
-      # Route /results path to the results dashboard
-      - path: /results
-        pathType: Prefix
-        backend:
-          service:
-            name: result-service
             port:
               number: 80
