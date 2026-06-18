@@ -22,7 +22,7 @@ spec:
           service:
             name: result-rewrite
             port:
-              name: use-annotation
+              number: 80
       # Route root path to the voting frontend
       - path: /
         pathType: Prefix
