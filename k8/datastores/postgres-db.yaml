@@ -13,6 +13,11 @@ spec:
       labels:
         app: db
     spec:
+      tolerations:
+         - key: "CriticalAddonsOnly"
+           operator: "Exists"
+           effect: "NoSchedule"
+
       containers:
       - name: postgres
         image: postgres:15-alpine
@@ -36,10 +41,6 @@ spec:
         - containerPort: 5432
           name: postgres
 
-        tolerations:
-         - key: "CriticalAddonsOnly"
-           operator: "Exists"
-           effect: "NoSchedule"
 
         resources:
           requests:
