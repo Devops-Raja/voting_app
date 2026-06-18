@@ -4,7 +4,6 @@ metadata:
   name: voting-ingress
   namespace: voting-app
   annotations:
-    kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     # This group name merges these rules with other Ingresses
