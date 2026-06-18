@@ -10,7 +10,7 @@ metadata:
     # This ensures paths are handled correctly by the ALB
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
     # This rewrites the incoming path to /
-lb.ingress.kubernetes.io/actions.result-rewrite: >
+    alb.ingress.kubernetes.io/actions.result-rewrite: >
       {"type":"forward","forwardConfig":{"targetGroups":[{"serviceName":"result-service","servicePort":"80"}]},"rewriteConfig":{"path":"/"}}
 spec:
   ingressClassName: alb  #
